@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Neurodivergenz">
+<title>Neurodivergenz entdecken</title>
+<style>
+:root {
+  --bg: #f8f7ff;
+  --bg2: #ffffff;
+  --bg3: #f0eeff;
+  --card: #ffffff;
+  --card-border: #e8e4f8;
+  --card-hover: #f5f3ff;
+  --text: #1a1035;
+  --text2: #4a4370;
+  --text3: #9991c0;
+  --purple: #7c3aed;
+  --purple-bg: #ede9ff;
+  --purple-border: #c4b5fd;
+  --purple-text: #5b21b6;
+  --green: #059669;
+  --green-bg: #d1fae5;
+  --green-border: #6ee7b7;
+  --green-text: #065f46;
+  --red: #dc2626;
+  --red-bg: #fee2e2;
+  --red-border: #fca5a5;
+  --red-text: #991b1b;
+  --amber: #d97706;
+  --amber-bg: #fef3c7;
+  --amber-border: #fcd34d;
+  --amber-text: #92400e;
+  --blue: #2563eb;
+  --blue-bg: #dbeafe;
+  --blue-border: #93c5fd;
+  --blue-text: #1e3a8a;
+  --teal: #0d9488;
+  --teal-bg: #ccfbf1;
+  --teal-text: #134e4a;
+  --pink: #db2777;
+  --pink-bg: #fce7f3;
+  --pink-text: #831843;
+  --radius: 16px;
+  --radius-sm: 12px;
+  --shadow: 0 2px 12px rgba(100,80,200,0.08);
+  --shadow-lg: 0 4px 24px rgba(100,80,200,0.12);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: var(--bg); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif; color: var(--text); }
+
+#app { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
+
+#fsBtn { position: fixed; top: 12px; right: 12px; z-index: 9999; background: rgba(124,58,237,0.1); border: 1px solid var(--purple-border); border-radius: 8px; color: var(--purple); padding: 6px 10px; cursor: pointer; font-size: 15px; }
+
+.screen { display: none; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
+.screen.visible { display: flex; }
+
+/* HOME */
+.home-hero {
+  background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 50%, #4c1d95 100%);
+  padding: 36px 24px 30px; text-align: center; flex-shrink: 0;
+  position: relative; overflow: hidden;
+}
+.home-hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 80% 20%, rgba(196,181,253,0.3) 0%, transparent 60%);
+}
+.home-brain { font-size: 56px; display: block; margin-bottom: 10px; animation: float 3s ease-in-out infinite; position: relative; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.home-title { font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 4px; position: relative; }
+.home-sub { font-size: 14px; color: rgba(255,255,255,0.75); position: relative; }
+
+.home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 20px 16px; flex: 1; background: var(--bg); }
+.hcard {
+  background: var(--card); border: 1.5px solid var(--card-border); border-radius: var(--radius);
+  padding: 18px 16px; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+  position: relative; overflow: hidden; box-shadow: var(--shadow);
+}
+.hcard:active { transform: scale(0.96); box-shadow: none; }
+.hcard-accent { position: absolute; top: 0; left: 0; right: 0; height: 4px; border-radius: var(--radius) var(--radius) 0 0; }
+.hcard-icon { font-size: 30px; margin-bottom: 10px; display: block; }
+.hcard-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.hcard-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
+.hcard-badge { display: inline-block; margin-top: 10px; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+
+/* TOPBAR */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; border-bottom: 1.5px solid var(--card-border);
+  background: var(--card); flex-shrink: 0; box-shadow: 0 1px 0 var(--card-border);
+}
+.back-btn {
+  background: var(--bg3); border: 1.5px solid var(--purple-border); border-radius: 10px;
+  padding: 8px 16px; color: var(--purple-text); cursor: pointer; font-size: 13px;
+  font-family: inherit; font-weight: 600; display: flex; align-items: center; gap: 6px;
+  transition: background 0.15s;
+}
+.back-btn:active { background: var(--purple-bg); }
+.screen-badge { font-size: 11px; font-weight: 700; padding: 5px 14px; border-radius: 20px; letter-spacing: 0.5px; }
+.screen-content { flex: 1; overflow-y: auto; padding: 18px 16px; background: var(--bg); -webkit-overflow-scrolling: touch; }
+
+/* QUIZ */
+.qprog-wrap { margin-bottom: 18px; }
+.qprog-top { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.qprog-label { font-size: 13px; color: var(--text3); font-weight: 500; }
+.qprog-score { font-size: 14px; font-weight: 700; color: var(--purple); }
+.qprog-bar { height: 8px; background: var(--purple-bg); border-radius: 4px; }
+.qprog-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--purple), #a855f7); transition: width 0.5s ease; }
+
+.qtxt { font-size: 19px; font-weight: 600; color: var(--text); line-height: 1.4; margin-bottom: 20px; }
+
+.opts { display: flex; flex-direction: column; gap: 10px; }
+.opt {
+  background: var(--card); border: 2px solid var(--card-border); border-radius: var(--radius-sm);
+  padding: 15px 16px; text-align: left; cursor: pointer; font-size: 15px; color: var(--text);
+  font-family: inherit; transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  line-height: 1.4; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow);
+  font-weight: 500;
+}
+.opt:active:not(:disabled) { transform: scale(0.98); }
+.opt-letter {
+  width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--card-border);
+  display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700;
+  flex-shrink: 0; color: var(--text3); background: var(--bg); transition: all 0.2s;
+}
+.opt:hover:not(:disabled) { border-color: var(--purple-border); background: var(--purple-bg); }
+.opt:hover:not(:disabled) .opt-letter { border-color: var(--purple); color: var(--purple); }
+.opt.correct { border-color: var(--green-border) !important; background: var(--green-bg) !important; }
+.opt.correct .opt-letter { background: var(--green); border-color: var(--green); color: #fff; }
+.opt.wrong { border-color: var(--red-border) !important; background: var(--red-bg) !important; }
+.opt.wrong .opt-letter { background: var(--red); border-color: var(--red); color: #fff; }
+.opt:disabled { cursor: default; }
+
+.feedback {
+  margin-top: 14px; padding: 14px 16px; border-radius: var(--radius-sm);
+  font-size: 14px; line-height: 1.6; display: none; font-weight: 500;
+  animation: fadeUp 0.3s ease;
+}
+.feedback.show { display: block; }
+.feedback.ok { background: var(--green-bg); border: 2px solid var(--green-border); color: var(--green-text); }
+.feedback.nok { background: var(--red-bg); border: 2px solid var(--red-border); color: var(--red-text); }
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+.qnext {
+  margin-top: 14px; width: 100%; background: var(--purple); color: #fff; border: none;
+  border-radius: var(--radius-sm); padding: 16px; font-size: 16px; cursor: pointer;
+  font-family: inherit; display: none; font-weight: 700; box-shadow: 0 4px 14px rgba(124,58,237,0.35);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.qnext:active { transform: scale(0.98); box-shadow: none; }
+.qnext.show { display: block; animation: fadeUp 0.3s ease; }
+
+/* RESULT */
+.result-wrap { text-align: center; padding: 10px 0 20px; }
+.result-emoji { font-size: 72px; display: block; margin-bottom: 8px; animation: pop 0.5s ease; }
+@keyframes pop { 0%{transform:scale(0)} 80%{transform:scale(1.15)} 100%{transform:scale(1)} }
+.result-stars { font-size: 30px; margin-bottom: 10px; }
+.result-frac { font-size: 60px; font-weight: 800; color: var(--purple); line-height: 1; }
+.result-lbl { font-size: 18px; color: var(--text2); margin: 6px 0 18px; font-weight: 600; }
+.result-msg { background: var(--card); border: 2px solid var(--card-border); border-radius: var(--radius-sm); padding: 16px; font-size: 15px; color: var(--text2); line-height: 1.7; margin-bottom: 18px; text-align: left; }
+.rbtn { width: 100%; background: var(--bg3); border: 2px solid var(--purple-border); border-radius: var(--radius-sm); padding: 15px; font-size: 15px; cursor: pointer; color: var(--purple-text); font-family: inherit; margin-bottom: 10px; font-weight: 600; transition: background 0.15s; }
+.rbtn:active { background: var(--purple-bg); }
+.rbtn.primary { background: var(--purple); color: #fff; border-color: var(--purple); box-shadow: 0 4px 14px rgba(124,58,237,0.3); }
+
+/* MYTHS */
+.myth-card { background: var(--card); border: 2px solid var(--card-border); border-radius: var(--radius); overflow: hidden; margin-bottom: 12px; cursor: pointer; transition: border-color 0.2s; box-shadow: var(--shadow); }
+.myth-card:active { transform: scale(0.99); }
+.myth-head { padding: 16px; display: flex; align-items: flex-start; gap: 10px; }
+.myth-text { font-size: 14px; font-weight: 600; color: var(--text); flex: 1; line-height: 1.45; }
+.myth-verdict { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; flex-shrink: 0; }
+.myth-chevron { font-size: 18px; color: var(--text3); transition: transform 0.3s; flex-shrink: 0; margin-top: 2px; }
+.myth-chevron.open { transform: rotate(180deg); }
+.myth-body { padding: 14px 16px; font-size: 14px; line-height: 1.65; color: var(--text2); display: none; border-top: 2px solid var(--card-border); background: var(--bg); animation: fadeUp 0.25s ease; }
+.myth-body.open { display: block; }
+
+/* TYPES */
+.type-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 16px; scrollbar-width: none; }
+.type-tabs::-webkit-scrollbar { display: none; }
+.ttab { padding: 9px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; border: 2px solid var(--card-border); background: var(--card); cursor: pointer; font-family: inherit; color: var(--text2); white-space: nowrap; transition: all 0.15s; }
+.ttab.active { color: #fff; border-color: transparent; }
+.type-detail { animation: fadeUp 0.3s ease; }
+.type-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; padding: 16px; background: var(--card); border-radius: var(--radius); border: 2px solid var(--card-border); box-shadow: var(--shadow); }
+.type-emoji { font-size: 42px; }
+.type-name { font-size: 22px; font-weight: 800; }
+.type-desc { font-size: 14px; color: var(--text2); line-height: 1.7; margin-bottom: 16px; background: var(--card); border-radius: var(--radius-sm); padding: 14px; border: 2px solid var(--card-border); }
+.section-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--text3); margin-bottom: 8px; text-transform: uppercase; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.chip { font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 20px; }
+
+/* SCENES */
+.scene-intro { font-size: 14px; color: var(--text2); line-height: 1.6; margin-bottom: 16px; padding: 14px; background: var(--purple-bg); border-radius: var(--radius-sm); border: 2px solid var(--purple-border); }
+.scene-card { background: var(--card); border: 2px solid var(--card-border); border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; box-shadow: var(--shadow); transition: border-color 0.3s; }
+.scene-card.revealed { border-color: var(--purple-border); }
+.scene-head { padding: 18px; background: var(--bg3); }
+.scene-tag { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--purple); text-transform: uppercase; margin-bottom: 6px; }
+.scene-situation { font-size: 15px; color: var(--text); line-height: 1.5; font-weight: 600; }
+.scene-reveal-btn { width: calc(100% - 32px); margin: 14px 16px; background: var(--purple); color: #fff; border: none; border-radius: var(--radius-sm); padding: 13px; font-size: 14px; cursor: pointer; font-family: inherit; font-weight: 700; box-shadow: 0 4px 12px rgba(124,58,237,0.3); }
+.scene-reveal-btn:active { transform: scale(0.98); }
+.scene-reveal-btn.gone { display: none; }
+.scene-inner { padding: 0 16px 16px; display: none; animation: fadeUp 0.3s ease; }
+.scene-inner.show { display: block; }
+.scene-perspective { margin-bottom: 10px; padding: 14px; border-radius: var(--radius-sm); font-size: 14px; line-height: 1.65; font-weight: 500; }
+.scene-p-label { font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+
+/* PEOPLE */
+.people-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.person-card { background: var(--card); border: 2px solid var(--card-border); border-radius: var(--radius); padding: 16px; cursor: pointer; transition: border-color 0.2s, transform 0.15s; box-shadow: var(--shadow); }
+.person-card:active { transform: scale(0.97); }
+.person-card.expanded { border-color: var(--purple-border); grid-column: 1 / -1; box-shadow: var(--shadow-lg); }
+.p-avatar { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 10px; }
+.p-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.p-role { font-size: 11px; color: var(--text3); margin-bottom: 8px; line-height: 1.4; font-weight: 500; }
+.p-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.p-tag { font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 600; }
+.p-quote { font-size: 14px; font-style: italic; color: var(--text2); line-height: 1.65; border-left: 4px solid var(--purple); padding-left: 12px; margin-top: 14px; display: none; animation: fadeUp 0.3s ease; }
+.person-card.expanded .p-quote { display: block; }
+.expand-hint { font-size: 11px; color: var(--text3); margin-top: 8px; font-weight: 500; }
+.person-card.expanded .expand-hint { display: none; }
+
+/* WWYD */
+.wwyd-card { background: var(--card); border: 2px solid var(--card-border); border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; box-shadow: var(--shadow); }
+.wwyd-head { padding: 18px; background: var(--bg3); border-bottom: 2px solid var(--card-border); }
+.wwyd-q { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.45; margin-bottom: 4px; }
+.wwyd-hint { font-size: 12px; color: var(--text3); font-weight: 500; }
+.wwyd-opts { padding: 14px; display: flex; flex-direction: column; gap: 9px; }
+.wwyd-opt { padding: 13px 16px; border-radius: var(--radius-sm); border: 2px solid var(--card-border); background: var(--bg); font-size: 14px; cursor: pointer; font-family: inherit; text-align: left; color: var(--text); line-height: 1.4; transition: all 0.15s; font-weight: 500; }
+.wwyd-opt:hover:not(:disabled) { border-color: var(--purple-border); background: var(--purple-bg); }
+.wwyd-opt:active:not(:disabled) { transform: scale(0.98); }
+.wwyd-opt:disabled { cursor: default; }
+.wwyd-opt.good { border-color: var(--green-border) !important; background: var(--green-bg) !important; color: var(--green-text) !important; font-weight: 700; }
+.wwyd-opt.ok { border-color: var(--amber-border) !important; background: var(--amber-bg) !important; color: var(--amber-text) !important; font-weight: 700; }
+.wwyd-opt.bad { border-color: var(--red-border) !important; background: var(--red-bg) !important; color: var(--red-text) !important; font-weight: 700; }
+.wwyd-fb { margin: 0 14px 14px; padding: 14px; border-radius: var(--radius-sm); font-size: 14px; line-height: 1.65; display: none; animation: fadeUp 0.3s ease; font-weight: 500; }
+.wwyd-fb.show { display: block; }
+</style>
+</head>
+<body>
+<button id="fsBtn" onclick="toggleFS()">⛶</button>
+<div id="app">
+
+<!-- HOME -->
+<div class="screen visible" id="s-home">
+  <div class="home-hero">
+    <span class="home-brain">🧠</span>
+    <div class="home-title">Neurodivergenz entdecken</div>
+    <div class="home-sub">Wähle einen Bereich – tippe auf eine Karte</div>
+  </div>
+  <div class="home-grid">
+    <div class="hcard" onclick="go('s-quiz')">
+      <div class="hcard-accent" style="background:var(--purple)"></div>
+      <span class="hcard-icon">🎯</span>
+      <div class="hcard-title">Quiz</div>
+      <div class="hcard-desc">Teste dein Wissen in 8 Fragen</div>
+      <span class="hcard-badge" style="background:var(--purple-bg);color:var(--purple-text)">8 Fragen</span>
+    </div>
+    <div class="hcard" onclick="go('s-myths')">
+      <div class="hcard-accent" style="background:var(--amber)"></div>
+      <span class="hcard-icon">💡</span>
+      <div class="hcard-title">Mythen &amp; Fakten</div>
+      <div class="hcard-desc">Was stimmt wirklich?</div>
+      <span class="hcard-badge" style="background:var(--amber-bg);color:var(--amber-text)">6 Mythen</span>
+    </div>
+    <div class="hcard" onclick="go('s-types')">
+      <div class="hcard-accent" style="background:var(--green)"></div>
+      <span class="hcard-icon">🌈</span>
+      <div class="hcard-title">Formen entdecken</div>
+      <div class="hcard-desc">ADHS, Autismus &amp; mehr</div>
+      <span class="hcard-badge" style="background:var(--green-bg);color:var(--green-text)">5 Formen</span>
+    </div>
+    <div class="hcard" onclick="go('s-scene')">
+      <div class="hcard-accent" style="background:var(--blue)"></div>
+      <span class="hcard-icon">🎭</span>
+      <div class="hcard-title">Wie fühlt es sich an?</div>
+      <div class="hcard-desc">Schulalltag aus anderer Sicht</div>
+      <span class="hcard-badge" style="background:var(--blue-bg);color:var(--blue-text)">4 Szenarien</span>
+    </div>
+    <div class="hcard" onclick="go('s-people')">
+      <div class="hcard-accent" style="background:var(--teal)"></div>
+      <span class="hcard-icon">🌍</span>
+      <div class="hcard-title">Persönlichkeiten</div>
+      <div class="hcard-desc">Neurodivergente Vorbilder</div>
+      <span class="hcard-badge" style="background:var(--teal-bg);color:var(--teal-text)">6 Personen</span>
+    </div>
+    <div class="hcard" onclick="go('s-wwyd')">
+      <div class="hcard-accent" style="background:var(--pink)"></div>
+      <span class="hcard-icon">🤔</span>
+      <div class="hcard-title">Was würdest du tun?</div>
+      <div class="hcard-desc">Szenarien aus dem Schulalltag</div>
+      <span class="hcard-badge" style="background:var(--pink-bg);color:var(--pink-text)">4 Szenarien</span>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="screen" id="s-quiz">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('s-home')">← Menü</button>
+    <span class="screen-badge" style="background:var(--purple-bg);color:var(--purple-text)">🎯 QUIZ</span>
+  </div>
+  <div class="screen-content">
+    <div class="qprog-wrap">
+      <div class="qprog-top">
+        <span class="qprog-label" id="qLabel">Frage 1 von 8</span>
+        <span class="qprog-score" id="qScoreEl">0 Punkte</span>
+      </div>
+      <div class="qprog-bar"><div class="qprog-fill" id="qFill" style="width:12.5%"></div></div>
+    </div>
+    <div class="qtxt" id="qTxt"></div>
+    <div class="opts" id="qOpts"></div>
+    <div class="feedback" id="qFb"></div>
+    <button class="qnext" id="qNext" onclick="nextQ()">Nächste Frage →</button>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div class="screen" id="s-result">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('s-home')">← Menü</button>
+    <span class="screen-badge" style="background:var(--purple-bg);color:var(--purple-text)">🏆 ERGEBNIS</span>
+  </div>
+  <div class="screen-content">
+    <div class="result-wrap">
+      <span class="result-emoji" id="rEmoji"></span>
+      <div class="result-stars" id="rStars"></div>
+      <div class="result-frac" id="rFrac"></div>
+      <div class="result-lbl" id="rLbl"></div>
+      <div class="result-msg" id="rMsg"></div>
+      <button class="rbtn primary" onclick="startQuiz()">Nochmal versuchen</button>
+      <button class="rbtn" onclick="go('s-home')">Zurück zum Menü</button>
+    </div>
+  </div>
+</div>
+
+<!-- MYTHS -->
+<div class="screen" id="s-myths">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('s-home')">← Menü</button>
+    <span class="screen-badge" style="background:var(--amber-bg);color:var(--amber-text)">💡 MYTHEN</span>
+  </div>
+  <div class="screen-content">
+    <p style="font-size:14px;color:var(--text2);margin-bottom:16px;font-weight:500">Tippe auf einen Mythos um die Wahrheit zu sehen.</p>
+    <div id="mythsContainer"></div>
+  </div>
+</div>
+
+<!-- TYPES -->
+<div class="screen" id="s-types">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('s-home')">← Menü</button>
+    <span class="screen-badge" style="background:var(--green-bg);color:var(--green-text)">🌈 FORMEN</span>
+  </div>
+  <div class="screen-content">
+    <div class="type-tabs" id="typeTabs"></div>
+    <div id="typeDetail"></div>
+  </div>
+</div>
+
+<!-- SCENE -->
+<div class="screen" id="s-scene">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('s-home')">← Menü</button>
+    <span class="screen-badge" style="background:var(--blue-bg);color:var(--blue-text)">🎭 PERSPEKTIVEN</span>
+  </div>
+  <div class="screen-content">
+    <div class="scene-intro">Erlebe kurze Szenen aus dem Schulalltag – erst aus normaler Sicht, dann aus neurodivergenter Perspektive. Tippe auf den Button zum Enthüllen.</div>
+    <div id="scenesContainer"></div>
+  </div>
+</div>
+
+<!-- PEOPLE -->
+<div class="screen" id="s-people">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('s-home')">← Menü</button>
+    <span class="screen-badge" style="background:var(--teal-bg);color:var(--teal-text)">🌍 PERSÖNLICHKEITEN</span>
+  </div>
+  <div class="screen-content">
+    <p style="font-size:14px;color:var(--text2);margin-bottom:16px;font-weight:500">Tippe auf eine Person für ein Zitat.</p>
+    <div class="people-grid" id="peopleGrid"></div>
+  </div>
+</div>
+
+<!-- WWYD -->
+<div class="screen" id="s-wwyd">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('s-home')">← Menü</button>
+    <span class="screen-badge" style="background:var(--pink-bg);color:var(--pink-text)">🤔 WAS WÜRDEST DU TUN?</span>
+  </div>
+  <div class="screen-content">
+    <p style="font-size:14px;color:var(--text2);margin-bottom:16px;line-height:1.6;font-weight:500">Wähle deine Reaktion – manche Antworten sind hilfreicher als andere.</p>
+    <div id="wwydContainer"></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const questions = [
+  {q:"Was bedeutet 'Neurodivergenz'?", opts:["Eine seltene Gehirnkrankheit","Das Gehirn funktioniert auf eine nicht-typische Weise","Eine Form von Hochintelligenz","Ein Problem, das man überwinden kann"], c:1, fb:"Neurodivergenz beschreibt, wie manche Gehirne anders arbeiten – es ist keine Krankheit, sondern eine natürliche Variation."},
+  {q:"Ungefähr wie viele Menschen sind neurodivergent?", opts:["1 von 100","1 von 20","1 von 5","Weniger als 1 %"], c:2, fb:"Etwa 15–20 % der Menschen sind neurodivergent – in einer 25er-Klasse sind das ca. 5 Schüler:innen!"},
+  {q:"Was ist 'Hyperfokus' bei ADHS?", opts:["Unaufmerksamkeit bei allem","Sehr intensive Konzentration auf etwas Interessantes","Angst vor Prüfungen","Zu viel Schlaf brauchen"], c:1, fb:"Hyperfokus ist eine echte Stärke: Menschen mit ADHS können sich stundenlang in ein begeisterndes Thema vertiefen."},
+  {q:"Was bedeutet 'Masking' bei Autismus?", opts:["Versteckspiele mögen","Autistisches Verhalten verstecken um dazuzupassen","Keine Mimik zeigen","Über Diagnosen lügen"], c:1, fb:"Masking bedeutet, neurodivergentes Verhalten zu unterdrücken um 'normal' zu wirken – das ist sehr anstrengend."},
+  {q:"Welche Aktivistin bezeichnet Autismus als ihre 'Superkraft'?", opts:["Malala Yousafzai","Emma Watson","Greta Thunberg","Luisa Neubauer"], c:2, fb:"Greta Thunberg spricht offen über ihre Autismus-Diagnose und sagt, ihr Gehirn helfe ihr, die Klimakrise ernst zu nehmen."},
+  {q:"Was ist KEINE Form von Neurodivergenz?", opts:["Legasthenie","Schüchternheit","Dyskalkulie","Tourette-Syndrom"], c:1, fb:"Schüchternheit ist ein Persönlichkeitsmerkmal. Legasthenie, Dyskalkulie und Tourette sind neurologische Besonderheiten."},
+  {q:"Was kann sensorische Überempfindlichkeit bedeuten?", opts:["Allergien gegen Parfüm","Sinneseindrücke werden viel intensiver wahrgenommen","Kurzsichtigkeit","Sehr gutes Musikgehör"], c:1, fb:"Bei sensorischer Überempfindlichkeit kann Klassenlärm sich anfühlen wie ein Konzert – das ist sehr anstrengend."},
+  {q:"Was bedeutet 'Neurodiversität' als gesellschaftliches Konzept?", opts:["Nur neurodivergente Menschen sind kreativ","Verschiedene Denkweisen bereichern die Gesellschaft","Neurotypische Menschen haben mehr Rechte","Neurodivergenz sollte geheilt werden"], c:1, fb:"Neurodiversität bedeutet: Die Vielfalt verschiedener Denkweisen ist wertvoll – nicht ein Problem das behoben werden muss."}
+];
+
+const myths = [
+  {m:"ADHS ist nur eine Ausrede fürs Faullenzen", v:"FALSCH", vc:"var(--red-text)", vbg:"var(--red-bg)", t:"ADHS ist eine neurologische Besonderheit. Betroffene wollen oft sehr gerne arbeiten – es ist schlicht schwerer anzufangen oder dranzubleiben."},
+  {m:"Autistische Menschen haben keine Empathie", v:"FALSCH", vc:"var(--red-text)", vbg:"var(--red-bg)", t:"Viele autistische Menschen fühlen sehr tief – sie zeigen und verarbeiten Empathie nur anders. Oft fühlen sie zu viel, nicht zu wenig."},
+  {m:"Neurodivergenz ist sehr selten", v:"FALSCH", vc:"var(--red-text)", vbg:"var(--red-bg)", t:"Etwa 1 von 5 Menschen ist neurodivergent – wahrscheinlich jemand in deiner Klasse, Familie oder Freundesgruppe."},
+  {m:"Legasthenie bedeutet, man ist nicht intelligent", v:"FALSCH", vc:"var(--red-text)", vbg:"var(--red-bg)", t:"Legasthenie betrifft die Schriftsprachverarbeitung – nicht Intelligenz. Viele Menschen mit Legasthenie sind hochintelligent und kreativ."},
+  {m:"Mit der richtigen Erziehung verschwindet ADHS", v:"FALSCH", vc:"var(--red-text)", vbg:"var(--red-bg)", t:"ADHS ist angeboren und hat neurologische Ursachen. Gute Unterstützung hilft enorm – aber man kann Neurodivergenz nicht wegerziehen."},
+  {m:"Neurodivergente Menschen haben oft besondere Stärken", v:"WAHR ✓", vc:"var(--green-text)", vbg:"var(--green-bg)", t:"Ja! Viele neurodivergente Menschen haben ausgeprägte Kreativität, Hyperfokus, einzigartige Mustererkennung oder tiefes Einfühlungsvermögen."}
+];
+
+const types = [
+  {n:"ADHS", icon:"⚡", color:"#7c3aed", chipBg:"#ede9ff", chipColor:"#5b21b6", desc:"ADHS steht für Aufmerksamkeits-Defizit-Hyperaktivitäts-Störung. Das Gehirn sucht Aufregung und Neuheit – langweilige Aufgaben fallen schwer, aber bei echter Begeisterung ist der Fokus grenzenlos.", strengths:["Kreativität","Hyperfokus","Energie","Humor"], challenges:["Aufmerksamkeit","Organisation","Impulskontrolle"]},
+  {n:"Autismus", icon:"🌟", color:"#0891b2", chipBg:"#cffafe", chipColor:"#164e63", desc:"Autismus beeinflusst, wie jemand die Welt wahrnimmt und kommuniziert. 'Spektrum' bedeutet: Jede autistische Person ist komplett anders – es ist keine Krankheit, sondern eine andere Art zu sein.", strengths:["Detailgenauigkeit","Ehrlichkeit","Tiefe Interessen","Mustererkennung"], challenges:["Soziale Signale","Reizverarbeitung","Veränderungen"]},
+  {n:"Legasthenie", icon:"📖", color:"#d97706", chipBg:"#fef3c7", chipColor:"#92400e", desc:"Bei Legasthenie werden Buchstaben anders verarbeitet – Lesen und Schreiben fällt schwerer. Das hat absolut nichts mit Intelligenz zu tun.", strengths:["Räumliches Denken","Kreativität","Problemlösung"], challenges:["Lesen","Schreiben","Buchstabieren"]},
+  {n:"Dyskalkulie", icon:"🔢", color:"#059669", chipBg:"#d1fae5", chipColor:"#065f46", desc:"Dyskalkulie betrifft die Verarbeitung von Zahlen. Rechnen kann sehr schwer fallen – obwohl man logisch und klug denkt.", strengths:["Sprache","Kreativität","Soziales Denken"], challenges:["Rechnen","Zahlen merken","Zeitschätzung"]},
+  {n:"Hochbegabung", icon:"💡", color:"#7c3aed", chipBg:"#ede9ff", chipColor:"#5b21b6", desc:"Hochbegabung bedeutet intensiveres Erleben und schnelleres Denken – aber auch oft Unterforderung, Perfektionismus und das Gefühl, nicht dazuzugehören.", strengths:["Schnelles Lernen","Tiefes Denken","Kreativität"], challenges:["Langeweile","Perfektionismus","Sozialer Anschluss"]}
+];
+
+const scenes = [
+  {title:"In der Klasse", situation:"Die Lehrerin erklärt Mathe. Im Hintergrund surrt die Heizung, jemand kaut Kaugummi, draußen bellt ein Hund.", normal:"Für die meisten: normaler Unterricht – Hintergrundgeräusche fallen kaum auf.", neuro:"Für jemanden mit sensorischer Überempfindlichkeit: Das Surren klingt wie ein Bohrer. Das Kauen ist ohrenbetäubend. Konzentration kostet enorme Energie.", label:"Sensorische Überempfindlichkeit"},
+  {title:"Gruppenarbeit", situation:"Die Klasse teilt sich in Gruppen. Alle fangen sofort an zu reden und zu planen.", normal:"Für die meisten: Eine gute Gelegenheit, mit Freunden zu arbeiten.", neuro:"Für jemanden mit ADHS: Alle reden gleichzeitig – Ideen sprudeln so schnell, dass sie kaum ausgedrückt werden können. Bis man fertig redet, ist die Gruppe schon woanders.", label:"ADHS – Gedankenflut"},
+  {title:"Aufsatz schreiben", situation:"30 Minuten Zeit für einen Aufsatz. Er soll ordentlich und fehlerfrei sein.", normal:"Die meisten schreiben drauflos – Rechtschreibung ist lästig aber machbar.", neuro:"Für jemanden mit Legasthenie: Buchstaben tauschen sich aus. Das Wort sieht richtig aus, ist es aber nicht. Ich weiß was ich sagen will – es aufs Papier zu bringen ist wie eine andere Sprache.", label:"Legasthenie"},
+  {title:"Pause auf dem Schulhof", situation:"Große Pause. Hunderte Schüler:innen, Geschrei, Musik aus einem Handy.", normal:"Für die meisten: Erholung, Spaß, Energie tanken.", neuro:"Für manche autistischen Schüler:innen: Die Pause ist anstrengender als der Unterricht. Überall Bewegung, Lärm, Unvorhersehbares. Um 13 Uhr schon komplett erschöpft.", label:"Autismus – Reizüberflutung"}
+];
+
+const people = [
+  {name:"Greta Thunberg", role:"Klimaaktivistin", icon:"🌍", color:"#0891b2", bg:"#cffafe", tagColor:"#164e63", tags:["Autismus-Spektrum"], quote:"Mein Asperger macht mich nicht eingeschränkt. Es macht mich zu jemandem, der schwarz-weiß denkt – und der Klimawandel ist für mich schwarz-weiß."},
+  {name:"Albert Einstein", role:"Physiker & Nobelpreisträger", icon:"⚛️", color:"#7c3aed", bg:"#ede9ff", tagColor:"#5b21b6", tags:["Autismus (vermutet)","Legasthenie (vermutet)"], quote:"Phantasie ist wichtiger als Wissen, denn Wissen ist begrenzt."},
+  {name:"Simone Biles", role:"Turnerin, 7× Olympia-Gold", icon:"🤸", color:"#059669", bg:"#d1fae5", tagColor:"#065f46", tags:["ADHS"], quote:"Ich bin stolz darauf, was ich geleistet habe und wer ich bin."},
+  {name:"Temple Grandin", role:"Tierwissenschaftlerin & Autorin", icon:"🐄", color:"#d97706", bg:"#fef3c7", tagColor:"#92400e", tags:["Autismus-Spektrum"], quote:"Ich denke in Bildern. Worte sind für mich wie eine Zweitsprache."},
+  {name:"Leonardo da Vinci", role:"Künstler & Erfinder", icon:"🎨", color:"#db2777", bg:"#fce7f3", tagColor:"#831843", tags:["ADHS (vermutet)"], quote:"Lernen ist die einzige Sache, vor der der Verstand sich niemals erschöpft."},
+  {name:"Tim Burton", role:"Filmregisseur", icon:"🎬", color:"#4f46e5", bg:"#e0e7ff", tagColor:"#3730a3", tags:["Autismus-Spektrum"], quote:"Ich war schon immer jemand, der nicht 'normal' war – und das hat mir letztendlich geholfen."}
+];
+
+const wwyd = [
+  {q:"Dein Mitschüler Leon trägt immer Kopfhörer, auch wenn die Lehrerin erklärt. Jemand sagt: 'Der ist so unhöflich!' Was denkst du?",
+   opts:[{t:"Leon ist wirklich unhöflich – Kopfhörer im Unterricht geht gar nicht.",r:"bad",fb:"Das klingt logisch – aber vielleicht hat Leon Kopfhörer weil er sensorisch überempfindlich ist. Sie helfen ihm sich zu konzentrieren, und die Lehrerin hat es erlaubt."},
+         {t:"Vielleicht hat er einen Grund dafür – ich würde erst mal nichts sagen.",r:"good",fb:"Genau! Bevor wir urteilen, lohnt es sich zu fragen. Leon trägt Kopfhörer weil er ADHS hat und Umgebungsgeräusche ihn sonst überfluten."},
+         {t:"Egal was andere machen – das ist seine Sache.",r:"ok",fb:"Fair! Noch besser wäre, anderen zu erklären dass es Gründe geben kann – so entsteht Verständnis."}]},
+  {q:"Mia antwortet im Unterricht immer sehr ausführlich. Du bemerkst, dass sie danach traurig wirkt. Was tust du?",
+   opts:[{t:"Ich sage ihr: 'Du musst kürzer reden, das nervt alle.'",r:"bad",fb:"Das würde Mia verletzen. Sie kann ihre Ausführlichkeit vielleicht nicht steuern – das kann ein Zeichen von ADHS oder Autismus sein."},
+         {t:"Ich ignoriere es – das ist nicht mein Problem.",r:"ok",fb:"Okay, aber du hast bemerkt dass sie traurig ist. Eine kleine Geste der Freundlichkeit kann viel bedeuten."},
+         {t:"Ich gehe zu ihr und sage: 'Hey, ich fand deine Antwort interessant.'",r:"good",fb:"Eine kleine Geste kostet nichts und kann den ganzen Tag verändern. Mia merkt, dass jemand ihre Art schätzt."}]},
+  {q:"Beim Sport-Tag will niemand Jonas in die Gruppe – er ist tollpatschig. Was machst du?",
+   opts:[{t:"Ich schließe mich der Gruppe an – wir wollen ja gewinnen.",r:"bad",fb:"Jonas könnte Dyspraxie haben, eine Koordinationsschwäche. Er kann nichts dafür. Ausschluss tut tief weh."},
+         {t:"Ich frage Jonas, ob er zu uns kommen möchte.",r:"good",fb:"Das ist Mut und Empathie zugleich. Jonas wird es nicht vergessen. Und vielleicht überrascht er euch noch!"},
+         {t:"Ich sage nichts, aber ich finde es unfair.",r:"ok",fb:"Dein Gefühl ist richtig – aber manchmal braucht es jemanden der den ersten Schritt macht. Trau dich!"}]},
+  {q:"Lara braucht beim Aufsatz doppelt so lange. Der Lehrer sagt, das ist in Ordnung. Andere finden das ungerecht. Was denkst du?",
+   opts:[{t:"Das ist ungerecht – alle sollten gleich viel Zeit haben.",r:"bad",fb:"Gleichheit heißt nicht, allen dasselbe zu geben – sondern jedem das was er braucht. Lara hat Legasthenie. Mehr Zeit ist ein Ausgleich, kein Vorteil."},
+         {t:"Ich verstehe, dass sie mehr Zeit braucht – das ist fair.",r:"good",fb:"Das nennt sich 'Nachteilsausgleich'. Es sorgt dafür dass Lara dieselbe Chance hat wie alle anderen."},
+         {t:"Ich bin unsicher – ich mische mich nicht ein.",r:"ok",fb:"Unsicherheit ist okay. Aber wenn du es verstehst, kannst du es auch anderen erklären – das hilft Lara und der ganzen Klasse."}]}
+];
+
+let qIdx = 0, qScoreVal = 0;
+
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible'));
+  document.getElementById(id).classList.add('visible');
+  window.scrollTo(0,0);
+  if (id === 's-myths') renderMyths();
+  if (id === 's-types') renderTypes();
+  if (id === 's-scene') renderScenes();
+  if (id === 's-people') renderPeople();
+  if (id === 's-wwyd') renderWwyd();
+}
+
+function startQuiz() {
+  qIdx = 0;
+  qScoreVal = 0;
+  go('s-quiz');
+  renderQ();
+}
+
+function renderQ() {
+  const q = questions[qIdx];
+  document.getElementById('qLabel').textContent = 'Frage ' + (qIdx+1) + ' von ' + questions.length;
+  document.getElementById('qScoreEl').textContent = qScoreVal + ' Punkte';
+  document.getElementById('qFill').style.width = ((qIdx+1)/questions.length*100) + '%';
+  document.getElementById('qTxt').textContent = q.q;
+  const fb = document.getElementById('qFb');
+  fb.className = 'feedback';
+  fb.textContent = '';
+  document.getElementById('qNext').className = 'qnext';
+  const L = ['A','B','C','D'];
+  document.getElementById('qOpts').innerHTML = q.opts.map((o,i) =>
+    `<button class="opt" onclick="pickQ(${i},this)"><span class="opt-letter">${L[i]}</span>${o}</button>`
+  ).join('');
+}
+
+function pickQ(i, btn) {
+  const q = questions[qIdx];
+  document.querySelectorAll('.opt').forEach(b => b.disabled = true);
+  const fb = document.getElementById('qFb');
+  if (i === q.c) {
+    btn.classList.add('correct');
+    qScoreVal++;
+    fb.className = 'feedback ok show';
+    fb.innerHTML = '✓ Richtig! ' + q.fb;
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.opt')[q.c].classList.add('correct');
+    fb.className = 'feedback nok show';
+    fb.innerHTML = '✗ Nicht ganz. ' + q.fb;
+  }
+  document.getElementById('qNext').className = 'qnext show';
+  document.getElementById('qScoreEl').textContent = qScoreVal + ' Punkte';
+}
+
+function nextQ() {
+  qIdx++;
+  if (qIdx >= questions.length) showResult();
+  else renderQ();
+}
+
+function showResult() {
+  go('s-result');
+  const p = qScoreVal / questions.length;
+  document.getElementById('rFrac').textContent = qScoreVal + '/' + questions.length;
+  let emoji, stars, lbl, msg;
+  if (p >= 0.875) { emoji='🏆'; stars='⭐⭐⭐⭐⭐'; lbl='Ausgezeichnet!'; msg='Du weißt schon sehr viel über Neurodivergenz. Mit diesem Wissen kannst du anderen helfen, neurodivergente Mitschüler:innen besser zu verstehen.'; }
+  else if (p >= 0.625) { emoji='🎉'; stars='⭐⭐⭐⭐'; lbl='Sehr gut!'; msg='Du hast ein gutes Grundwissen. Schau dir die anderen Bereiche an – besonders "Wie fühlt es sich an?" für noch mehr Einblick.'; }
+  else if (p >= 0.375) { emoji='👍'; stars='⭐⭐⭐'; lbl='Guter Start!'; msg='Du hast einiges gelernt. Probier das Quiz nochmal oder entdecke die anderen Bereiche.'; }
+  else { emoji='🌱'; stars='⭐⭐'; lbl='Weiter so!'; msg='Neurodivergenz ist ein großes Thema. Das Quiz zeigt dir wo es Neues zu entdecken gibt – schau dir die anderen Bereiche an!'; }
+  document.getElementById('rEmoji').textContent = emoji;
+  document.getElementById('rStars').textContent = stars;
+  document.getElementById('rLbl').textContent = lbl;
+  document.getElementById('rMsg').textContent = msg;
+}
+
+function renderMyths() {
+  document.getElementById('mythsContainer').innerHTML = myths.map((m,i) => `
+    <div class="myth-card" onclick="toggleMyth(${i})">
+      <div class="myth-head">
+        <span class="myth-text">"${m.m}"</span>
+        <span class="myth-verdict" style="background:${m.vbg};color:${m.vc}">${m.v}</span>
+        <span class="myth-chevron" id="mc-${i}">▾</span>
+      </div>
+      <div class="myth-body" id="mb-${i}">${m.t}</div>
+    </div>`).join('');
+}
+function toggleMyth(i) {
+  document.getElementById('mb-'+i).classList.toggle('open');
+  document.getElementById('mc-'+i).classList.toggle('open');
+}
+
+function renderTypes() {
+  document.getElementById('typeTabs').innerHTML = types.map((t,i) =>
+    `<button class="ttab${i===0?' active':''}" onclick="showType(${i})" id="tt-${i}" style="${i===0?'background:'+t.color+';color:#fff;border-color:'+t.color:''}">${t.icon} ${t.n}</button>`
+  ).join('');
+  showType(0);
+}
+function showType(i) {
+  document.querySelectorAll('.ttab').forEach((t,j) => {
+    t.classList.toggle('active', j===i);
+    t.style.background = j===i ? types[j].color : '#fff';
+    t.style.color = j===i ? '#fff' : 'var(--text2)';
+    t.style.borderColor = j===i ? types[j].color : 'var(--card-border)';
+  });
+  const t = types[i];
+  document.getElementById('typeDetail').innerHTML = `<div class="type-detail">
+    <div class="type-header">
+      <span class="type-emoji">${t.icon}</span>
+      <div class="type-name" style="color:${t.color}">${t.n}</div>
+    </div>
+    <div class="type-desc">${t.desc}</div>
+    <div class="section-label">Stärken</div>
+    <div class="chips">${t.strengths.map(s=>`<span class="chip" style="background:var(--green-bg);color:var(--green-text)">✓ ${s}</span>`).join('')}</div>
+    <div class="section-label">Herausforderungen</div>
+    <div class="chips">${t.challenges.map(c=>`<span class="chip" style="background:var(--red-bg);color:var(--red-text)">↗ ${c}</span>`).join('')}</div>
+  </div>`;
+}
+
+function renderScenes() {
+  document.getElementById('scenesContainer').innerHTML = scenes.map((s,i) => `
+    <div class="scene-card" id="sc-${i}">
+      <div class="scene-head">
+        <div class="scene-tag">${s.title}</div>
+        <div class="scene-situation">${s.situation}</div>
+      </div>
+      <button class="scene-reveal-btn" id="srb-${i}" onclick="revealScene(${i})">👁 Perspektive enthüllen</button>
+      <div class="scene-inner" id="si-${i}">
+        <div class="scene-perspective" style="background:var(--blue-bg);border:2px solid var(--blue-border)">
+          <div class="scene-p-label" style="color:var(--blue-text)">Neurotypisch</div>${s.normal}
+        </div>
+        <div class="scene-perspective" style="background:var(--purple-bg);border:2px solid var(--purple-border)">
+          <div class="scene-p-label" style="color:var(--purple-text)">${s.label}</div>${s.neuro}
+        </div>
+      </div>
+    </div>`).join('');
+}
+function revealScene(i) {
+  document.getElementById('si-'+i).classList.add('show');
+  document.getElementById('srb-'+i).classList.add('gone');
+  document.getElementById('sc-'+i).classList.add('revealed');
+}
+
+function renderPeople() {
+  document.getElementById('peopleGrid').innerHTML = people.map((p,i) => `
+    <div class="person-card" id="pc-${i}" onclick="togglePerson(${i})">
+      <div class="p-avatar" style="background:${p.bg}">${p.icon}</div>
+      <div class="p-name">${p.name}</div>
+      <div class="p-role">${p.role}</div>
+      <div class="p-tags">${p.tags.map(t=>`<span class="p-tag" style="background:${p.bg};color:${p.tagColor}">${t}</span>`).join('')}</div>
+      <div class="expand-hint">Tippen für Zitat →</div>
+      <div class="p-quote">"${p.quote}"</div>
+    </div>`).join('');
+}
+function togglePerson(i) {
+  const c = document.getElementById('pc-'+i);
+  const was = c.classList.contains('expanded');
+  document.querySelectorAll('.person-card').forEach(x => x.classList.remove('expanded'));
+  if (!was) c.classList.add('expanded');
+}
+
+function renderWwyd() {
+  document.getElementById('wwydContainer').innerHTML = wwyd.map((w,i) => `
+    <div class="wwyd-card">
+      <div class="wwyd-head">
+        <div class="wwyd-q">${w.q}</div>
+        <div class="wwyd-hint">Wähle deine Reaktion</div>
+      </div>
+      <div class="wwyd-opts" id="wo-${i}">${w.opts.map((o,j)=>`<button class="wwyd-opt" onclick="pickW(${i},${j},this,'${o.r}')">${o.t}</button>`).join('')}</div>
+      <div class="wwyd-fb" id="wf-${i}"></div>
+    </div>`).join('');
+}
+function pickW(si, oi, btn, r) {
+  document.querySelectorAll('#wo-'+si+' .wwyd-opt').forEach(b => b.disabled = true);
+  btn.classList.add(r);
+  const fb = document.getElementById('wf-'+si);
+  const cfg = {
+    good: {bg:'var(--green-bg)', border:'2px solid var(--green-border)', color:'var(--green-text)', icon:'✓'},
+    ok:   {bg:'var(--amber-bg)', border:'2px solid var(--amber-border)', color:'var(--amber-text)', icon:'💬'},
+    bad:  {bg:'var(--red-bg)',   border:'2px solid var(--red-border)',   color:'var(--red-text)',   icon:'✗'}
+  };
+  const c = cfg[r];
+  fb.style.cssText = `background:${c.bg};border:${c.border};color:${c.color}`;
+  fb.innerHTML = c.icon + ' ' + wwyd[si].opts[oi].fb;
+  fb.classList.add('show');
+}
+
+function toggleFS() {
+  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    document.getElementById('fsBtn').textContent = '✕';
+  } else {
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    document.getElementById('fsBtn').textContent = '⛶';
+  }
+}
+
+// Start quiz on load
+window.addEventListener('load', () => { startQuiz(); go('s-home'); });
+</script>
+</body>
+</html>
